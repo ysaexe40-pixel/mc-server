@@ -40,9 +40,15 @@ jobs:
           curl -sSL https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64 -o playit
           chmod +x playit
           
-          # تشغيل playit وإظهار الـ Output فـ اللوقس ديريكت
-          ./playit mode stdout &
+          # تشغيل playit وتخزين الـ Claim Code فـ ملف
+          ./playit secret generate > playit.log 2>&1 &
+          
+          # انتظار 6 ثواني حتى يتولد الكود
           sleep 6
+          
+          echo "=========================================="
+          cat playit.log
+          echo "=========================================="
           
           cd server
           java -Xms2G -Xmx6G -jar server.jar nogui
