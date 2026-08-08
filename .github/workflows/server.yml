@@ -35,14 +35,23 @@ jobs:
           curl -JLO "https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar"
           mv *.jar server.jar
 
-      - name: Start Ngrok Tunnel
-        uses: forwardmail/ngrok-action@v1
-        with:
-          authtoken: ${{ secrets.NGROK_TOKEN }}
-          port: 25565
-          proto: tcp
-
-      - name: Run Minecraft Server
+      - name: Start Ngrok Tunnel and Minecraft
         run: |
+          # تثبيت Ngrok بالسكربت الرسمي
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok -y
+          
+          # ربط التوكن وتدويز الـ Port
+          ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
+          ngrok tcp 25565 > ngrok.log 2>&1 &
+          sleep 4
+          
+          # طباعة الـ IP فـ اللوقس ديريكت
+          echo "=========================================="
+          echo "SERVER IP & PORT:"
+          curl -s http://localhost:4040/api/tunnels | grep -o 'tcp://[^"]*' || cat ngrok.log
+          echo "=========================================="
+          
           cd server
           java -Xms2G -Xmx6G -jar server.jar nogui
