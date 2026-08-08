@@ -1,0 +1,48 @@
+name: Minecraft Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Server Configuration
+        run: |
+          mkdir -p server
+          cd server
+          echo "eula=true" > eula.txt
+          echo "online-mode=false" > server.properties
+          
+          if [ -d "../mods" ]; then
+            mkdir -p mods
+            cp -r ../mods/* ./mods/
+          fi
+
+      - name: Download Fabric Server 1.21.1
+        run: |
+          cd server
+          curl -Oj https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar
+
+      - name: Install Playit.gg
+        run: |
+          curl -SsL https://playit-cloud.github.io/dw-game-finding-cli/debian-repo/playit-archive-keyring.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/playit.gpg
+          echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/dw-game-finding-cli/debian-repo /" | sudo tee /etc/apt/sources.list.d/playit.list
+          sudo apt-get update
+          sudo apt-get install playit -y
+
+      - name: Start Server
+        run: |
+          playit &
+          cd server
+          java -Xms2G -Xmx6G -jar fabric-server-launch.jar nogui
