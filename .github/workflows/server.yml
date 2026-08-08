@@ -34,15 +34,16 @@ jobs:
           cd server
           curl -Oj https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar
 
-      - name: Install Playit.gg
+      - name: Download and Setup Playit.gg
         run: |
-          curl -SsL https://playit-cloud.github.io/dw-game-finding-cli/debian-repo/playit-archive-keyring.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/playit.gpg
-          echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/dw-game-finding-cli/debian-repo /" | sudo tee /etc/apt/sources.list.d/playit.list
-          sudo apt-get update
-          sudo apt-get install playit -y
+          curl -SsL -o playit https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64
+          chmod +x playit
 
       - name: Start Server
         run: |
+          ./playit &
+          cd server
+          java -Xms2G -Xmx6G -jar fabric-server-launch.jar nogui
           playit &
           cd server
           java -Xms2G -Xmx6G -jar fabric-server-launch.jar nogui
