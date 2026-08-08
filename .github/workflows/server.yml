@@ -26,24 +26,22 @@ jobs:
           
           if [ -d "../mods" ]; then
             mkdir -p mods
-            cp -r ../mods/* ./mods/
+            cp -r ../mods/* ./mods/ || true
           fi
 
       - name: Download Fabric Server 1.21.1
         run: |
           cd server
-          curl -Oj https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar
+          curl -JLO "https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar"
+          mv *.jar server.jar
 
-      - name: Download and Setup Playit.gg
+      - name: Setup Playit
         run: |
-          curl -SsL -o playit https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64
+          curl -sSL https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64 -o playit
           chmod +x playit
 
       - name: Start Server
         run: |
           ./playit &
           cd server
-          java -Xms2G -Xmx6G -jar fabric-server-launch.jar nogui
-          playit &
-          cd server
-          java -Xms2G -Xmx6G -jar fabric-server-launch.jar nogui
+          java -Xms2G -Xmx6G -jar server.jar nogui
