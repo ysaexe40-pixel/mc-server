@@ -35,14 +35,14 @@ jobs:
           curl -JLO "https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar"
           mv *.jar server.jar
 
-      - name: Setup and Run Playit with Server
+      - name: Start Playit and Server
         run: |
           curl -sSL https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64 -o playit
           chmod +x playit
           
-          # تشغيل playit وإظهار رابط الـ Claim فـ اللوقس مباشرة
-          ./playit claim &
-          sleep 5
+          # تشغيل playit وإظهار الـ Output فـ اللوقس ديريكت
+          ./playit mode stdout &
+          sleep 6
           
           cd server
           java -Xms2G -Xmx6G -jar server.jar nogui
