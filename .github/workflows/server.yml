@@ -35,18 +35,14 @@ jobs:
           curl -JLO "https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar"
           mv *.jar server.jar
 
-      - name: Start Playit Tunnel
+      - name: Start Ngrok Tunnel
+        uses: forwardmail/ngrok-action@v1
+        with:
+          authtoken: ${{ secrets.NGROK_TOKEN }}
+          port: 25565
+          proto: tcp
+
+      - name: Run Minecraft Server
         run: |
-          # تحميل أحدث برنامج playit-cli
-          curl -SsL https://playit-cloud.github.io/playit-agent/install.sh | sudo bash
-          
-          # تشغيل Playit وطباعة الرابط فـ اللوقس ديريكت
-          playit setup-cli > playit.log 2>&1 &
-          sleep 6
-          
-          echo "=========================================="
-          cat playit.log | grep -i "claim" || cat playit.log
-          echo "=========================================="
-          
           cd server
           java -Xms2G -Xmx6G -jar server.jar nogui
