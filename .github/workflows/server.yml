@@ -35,21 +35,10 @@ jobs:
           curl -JLO "https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.0/1.0.1/server/jar"
           mv *.jar server.jar
 
-      - name: Start Ngrok Tunnel and Minecraft
+      - name: Start Server & Tunnel
         run: |
-          # تحميل وتثبيت Ngrok
-          curl -sSL https://bin.equinox.io/c/b4p73zE2hHab/ngrok-v3-stable-linux-amd64.tgz | tar -xz
-          
-          # إدخال التوكن وتشغيل التانل
-          ./ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
-          ./ngrok tcp 25565 &
-          sleep 4
-          
-          # طباعة الـ IP فـ اللوقس ديريكت
-          echo "=================================================="
-          echo "SERVER IP & PORT:"
-          curl -s http://localhost:4040/api/tunnels | grep -o 'tcp://[^"]*'
-          echo "=================================================="
+          # تشغيل SSH Tunnel مجاني ومباشر كيعطي IP فـ اللوقس ديريكت
+          ssh -o StrictHostKeyChecking=no -R 80:localhost:25565 nokey@localhost.run > tunnel.log 2>&1 &
           
           cd server
           java -Xms2G -Xmx6G -jar server.jar nogui
